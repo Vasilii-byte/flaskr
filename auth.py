@@ -1,5 +1,3 @@
-from crypt import methods
-from distutils.log import error
 import functools
 
 from flask import (
@@ -24,7 +22,7 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
-        
+
         if error is None:
             try:
                 db.execute(
@@ -32,11 +30,11 @@ def register():
                     (username, generate_password_hash(password)),
                 )
                 db.commit()
-            except db.IntegityError:
+            except db.IntegrityError:
                 error = f"User {username} is already registered."
             else:
                 return redirect(url_for("auth.login"))
-        
+
         flash(error)
 
     return render_template('auth/register.html')
@@ -57,12 +55,12 @@ def login():
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
-        
+
         if error is None:
             session.clear()
             session['user_id'] = user['id']
             return redirect(url_for('index'))
-        
+
         flash(error)
 
     return render_template('auth/login.html')
@@ -91,7 +89,7 @@ def login_required(view):
     def wrapped_view(**kwargs):
         if g.user is None:
             return redirect(url_for('auth.login'))
-        
+
         return view(**kwargs)
-    
+
     return wrapped_view
